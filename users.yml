@@ -1,0 +1,10 @@
+- name: Configure PowerDNS xip.io server
+  hosts: infra-xipdns
+  become: True
+  vars:
+    local_path_file_authorized_keys_dulin: files/ssh_pub_dulin
+  tasks:
+    - name: Add user "dulin" and set authorized keys taken from file
+      user:
+        name: dulin
+

@@ -1,0 +1,43 @@
+- name: Configure PowerDNS xip.io server
+  hosts: infra-xipdns
+  become: True
+  vars:
+    local_path_file_pdns_conf: files/pdns.conf
+    dest_path_file_pdns_conf: /etc/pdns/pdns.conf
+    local_path_file_xip_pdns: files/xip-pdns
+    dest_path_file_xip_pdns: /etc/pdns/xip-pdns/bin/xip-pdns
+    local_path_file_xip_pdns_conf: files/xip-pdns.conf
+    dest_path_file_xip_pdns_conf: /etc/pdns/xip-pdns/etc/xip-pdns.conf
+
+
+  tasks:
+    - name: install pdns
+      yum:
+        name: pdns
+        update_cache: yes
+    - name: Install git
+      yum:
+        name: git
+        update_cache: yes
+    - name: Clone repositories
+      git:
+        repo: 'https://github.com/basecamp/xip-pdns.git'
+        dest: /etc/pdns/
+      ignore_errors: True
+    - name: copy configure PowerDNS
+      copy:
+        src: "{{ local_path_file_pdns_conf }}"
+        dest: "{{ dest_path_file_pdns_conf }}"
+    - name: copy configure file xip-pdns
+      copy:
+        src: "{{ local_path_file_xip_pdns }}"
+        dest: "{{ dest_path_file_xip_pdns }}"
+    - name: copy configure file xip-pdns.conf
+      copy:
+        src: "{{ local_path_file_xip_pdns_conf }}"
+        dest: "{{ dest_path_file_xip_pdns_conf }}"
+    - name: enable/restart PowerDNS
+      service: 
+        name: pdns
+        enabled: yes
+        state: restarted
